@@ -28,29 +28,44 @@ static_resources:
               - match:
                   prefix: "/c"
                 route:
-                  #host_rewrite: www.google.com
                   prefix_rewrite: "/coffee"
                   cluster: coffee_service
+              - match:
+                  prefix: "/t"
+                route:
+                  prefix_rewrite: "/tea"
+                  cluster: tea_service
           http_filters:
           - name: envoy.router
   clusters:
-  - name: service_google
+  - name: coffee_service
     connect_timeout: 0.25s
     type: LOGICAL_DNS
     # Comment out the following line to test on v6 networks
     dns_lookup_family: V4_ONLY
     lb_policy: ROUND_ROBIN
     load_assignment:
-      cluster_name: service_google
+      cluster_name: coffee_service
       endpoints:
       - lb_endpoints:
         - endpoint:
             address:
               socket_address:
-                address: www.google.com
-                port_value: 443
-    transport_socket:
-      name: envoy.transport_sockets.tls
-      typed_config:
-        "@type": type.googleapis.com/envoy.api.v2.auth.UpstreamTlsContext
-        sni: www.google.com
+                address: coffeeapi
+                port_value: 80
+  - name: tea_service
+    connect_timeout: 0.25s
+    type: LOGICAL_DNS
+    # Comment out the following line to test on v6 networks
+    dns_lookup_family: V4_ONLY
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: tea_service
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: teaapi
+                port_value: 80
+    
